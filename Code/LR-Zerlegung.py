@@ -17,11 +17,8 @@ def LRkompakt(A, **options):
     
     for j in range(0, n):
         spalte = A[r+1:m, j]
-        pivot = max(abs(spalte)) if len(spalte) > 0 else 0 
-        if abs(pivot) <= epsilon: continue
-
-        #Finde Zeilenindex in welcher sich Pivotelement befindet:
-        l = next(i for i in range(r+1, m) if abs(A[i][j]) == pivot)
+        l = np.argmax(abs(spalte)) + r + 1
+        if abs(A[l][j]) <= epsilon: continue
 
         r += 1
         Stufen.append(j)
@@ -36,9 +33,6 @@ def LRkompakt(A, **options):
             A[i][r] = typ(-lambda_ir)
 
     return A, p, r, Stufen, v
-
-
-
 
 
 def LRzerlegung(Aorg, **options):
@@ -68,10 +62,7 @@ def Vorwaertsloesen(L, c, **options):
     m = len(L)
     y = np.zeros(m, dtype = typ)
     for i in range(0,m):
-        Sum = 0
-        for j in range(0, i):
-            Sum += L[i][j] * y[j]
-        y[i] = 1/L[i][i] * (c[i] - Sum)
+        y[i] = 1/L[i][i] * (c[i] - L[i,:i].dot(y[:i]))
     return y
 
 
@@ -93,10 +84,7 @@ def Rueckwertsloesen(R, r, Stufen, d, **options):
     i = r
     for j in range(n-1, -1, -1):
         if j == Stufen[i]:
-            Sum = 0
-            for l in range(j , n):
-                Sum += R[i][l] * x[l]
-            x[j] = 1/R[i][j] * (d[i] - Sum)
+            x[j] = 1/R[i][j] * (d[i] - R[i,j:n].dot(x[j:n]))
 
             for q in range(0, n-r):
                 Sum = 0
@@ -131,8 +119,6 @@ def main():
     x, K = Rueckwertsloesen(R, r, Stufen, d, dtype = typ, epsilon = epsilon)
 
     print(x if np.all(abs(A.dot(x) - b) < epsilon) else "Gefundene Loesung erfuellt LGS nicht.")
-
-
 
 if __name__ == "__main__":
     main()
