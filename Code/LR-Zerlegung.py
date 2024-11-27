@@ -87,10 +87,7 @@ def Rueckwertsloesen(R, r, Stufen, d, **options):
             x[j] = 1/R[i][j] * (d[i] - R[i,j:n].dot(x[j:n]))
 
             for q in range(0, n-r):
-                Sum = 0
-                for l in range(j , n):
-                    Sum += R[i][l] * K[l][q]
-                K[j][q] = 1/R[i][j] * (-Sum)
+                K[j][q] = 1/R[i][j] * (-R[i,j:n].dot(K.T[q,j:n]))
 
             i-=1
         else:
